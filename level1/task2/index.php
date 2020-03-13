@@ -7,7 +7,6 @@ function readHttpLikeInput() {
     $store = "";
     $toread = 0;
     while( $line = fgets( $f ) ) {
-        echo $line;
         $store .= preg_replace("/\r/", "", $line);
         if (preg_match('/Content-Length: (\d+)/',$line,$m))
             $toread=$m[1]*1;
@@ -16,18 +15,32 @@ function readHttpLikeInput() {
     }
     if ($toread > 0)
         $store .= fread($f, $toread);
-    echo $store;
     return $store;
 }
 
 $contents = readHttpLikeInput();
 
+function getHeadersFromTcpStringHttpRequest($headers){
+        return array_map(function ($header){
+            return explode(": ",$header);
+        }, $headers);
+}
+
 function parseTcpStringAsHttpRequest($string) {
+    //get array of each string of http request
+    $httpRequestTcpStringsArray = explode("\n", $string);
+
+    //get method, URI, HTTP version
+    $httpRequestFirstStringParamsArray = explode(" ",$httpRequestTcpStringsArray[0]);
+
+    //get headers array
+    $headers = getHeadersFromTcpStringHttpRequest(array_slice($httpRequestTcpStringsArray, 1, -2));
+
     return array(
-        "method" => '...',
-        "uri" => '...',
-        "headers" => "...",
-        "body" => '...',
+        "method" => $httpRequestFirstStringParamsArray[0],
+        "uri" => $httpRequestFirstStringParamsArray[1],
+        "headers" => $headers,
+        "body" => end($httpRequestTcpStringsArray),
     );
 }
 
