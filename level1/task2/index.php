@@ -20,17 +20,17 @@ function readHttpLikeInput() {
     return $store;
 }
 
-//$contents = readHttpLikeInput();
+$contents = readHttpLikeInput();
 
-/*function parseTcpStringAsHttpRequest($string) {
+function parseTcpStringAsHttpRequest($string) {
     return array(
-        "method" => ...,
-        "uri" => ...,
-        "headers" => ...,
-        "body" => ...,
+        "method" => '...',
+        "uri" => '...',
+        "headers" => "...",
+        "body" => '...',
     );
-}*/
+}
 
-/*$http = parseTcpStringAsHttpRequest($contents);
-echo(json_encode($http, JSON_PRETTY_PRINT));*/
-echo("hello...");
+$http = parseTcpStringAsHttpRequest($contents);
+echo(json_encode($http, JSON_PRETTY_PRINT));
+//echo("hello...");
