@@ -36,11 +36,13 @@ function parseTcpStringAsHttpRequest($string) {
     //get headers array
     $headers = getHeadersFromTcpStringHttpRequest(array_slice($httpRequestTcpStringsArray, 1, -2));
 
+    $body = end($httpRequestTcpStringsArray);
+
     return array(
         "method" => $httpRequestFirstStringParamsArray[0],
         "uri" => $httpRequestFirstStringParamsArray[1],
         "headers" => $headers,
-        "body" => end($httpRequestTcpStringsArray),
+        "body" => $body,
     );
 }
 
