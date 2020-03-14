@@ -19,13 +19,16 @@ function readHttpLikeInput() {
 }
 
 $contents = readHttpLikeInput();
+
+const HTTP_REQUEST_BODY_LINES_NUMBER = 2;
 /**
  * @param array $httpRequestTcpLinesArray
  * @param bool $isBodyPresent if true than explode headers wo 2 last lines/elements
  * @return array of headers array [k => v]
  */
 function getHeadersFromHTTPRequest(array $httpRequestTcpLinesArray, bool $isBodyPresent): array {
-    $bodyLinesNum = $isBodyPresent ? 2 : 0;
+    //
+    $bodyLinesNum = $isBodyPresent ? HTTP_REQUEST_BODY_LINES_NUMBER : 0;
     $lastHeaderIndex = count($httpRequestTcpLinesArray) - $bodyLinesNum - 1;
     $headers = array_slice($httpRequestTcpLinesArray, 1, $lastHeaderIndex);
         return array_map(function ($header){
