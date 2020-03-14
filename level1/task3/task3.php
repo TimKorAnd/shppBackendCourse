@@ -18,9 +18,7 @@ function readHttpLikeInput() {
     return $store;
 }
 
-$contents = readHttpLikeInput();
-
-const HTTP_REQUEST_BODY_LINES_NUMBER = 2;
+const HTTP_REQUEST_BODY_LINES_NUMBER = 2; //TODO remove in config or anothet constatnts host
 /**
  * @param array $httpRequestTcpLinesArray
  * @param bool $isBodyPresent if true than explode headers wo 2 last lines/elements
@@ -99,13 +97,18 @@ function parseTcpStringAsHttpRequest($string) {
 //        outputHttpResponse(...);
     }
 
-
+//    $contents = readHttpLikeInput();
 //    $http = parseTcpStringAsHttpRequest($contents);
 //    processHttpRequest($http["method"], $http["uri"], $http["headers"], $http["body"]);
-
+    date_default_timezone_set("GMT");
+    function getCurrentTime($currentTime){
+        return date('r e',$currentTime);
+    }
+    $fn = 'getCurrentTime'; //TODO how else may i call this function from heredocs? Without variable creation
 $config = include_once ("./config/config.php");
+echo $config['responseCode']['404'];
 
 
-    $http = parseTcpStringAsHttpRequest($contents);
-echo(json_encode($http, JSON_PRETTY_PRINT));
-//echo("hello...");
+//    $http = parseTcpStringAsHttpRequest($contents);
+//echo(json_encode($http, JSON_PRETTY_PRINT));
+
