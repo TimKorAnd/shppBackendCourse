@@ -19,7 +19,7 @@ $inputs = array(
 hello
 T1
 ,
-	2 => <<<T2
+    2 => <<<T2
 POST /doc/test HTTP/1.1
 Host: shpp.me
 Accept: image/gif, image/jpeg, */*
