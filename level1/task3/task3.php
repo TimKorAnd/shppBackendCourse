@@ -62,8 +62,8 @@ function parseTcpStringAsHttpRequest($string) {
     //get array of each string of HTTP request
     $httpRequestTcpLinesArray = explode("\n", $string);
 
-    //get array of fields contained in first string of HTTP request: [method, URI path, HTTP/protocol version]
-    $httpRequestFirstLineParamsArray = explode(" ",$httpRequestTcpLinesArray[0]);
+    //get array of fields contained in first - start string of HTTP request: [method, URI path, HTTP/protocol version]
+    $httpRequestStartLineParamsArray = explode(" ",$httpRequestTcpLinesArray[0]);
 
     //get body
     $body = '';
@@ -79,8 +79,8 @@ function parseTcpStringAsHttpRequest($string) {
     }
 
     return array(
-        "method" => $httpRequestFirstLineParamsArray[0],
-        "uri" => $httpRequestFirstLineParamsArray[1],
+        "method" => $httpRequestStartLineParamsArray[0],
+        "uri" => $httpRequestStartLineParamsArray[1],
         "headers" => $headers,
         "body" => $body,
     );
@@ -92,14 +92,35 @@ function parseTcpStringAsHttpRequest($string) {
 //        echo ...;
 }
 
+    /**
+     * @param String $method
+     * @param String $uri
+     * @return String status code
+     */
+    function processStatusCode(String $method, String $uri): String{
+
+        if (!preg_match('/^GET$/', $method) ) {
+            return '400';
+        }
+        if (preg_match('/(^\/sum)(\?nums=)((?:\d+,)*\d+$)/', $uri, $matchesParams)) {
+            return '200';
+        }
+        if (!preg_match('/^\/sum/', $uri)){
+            return '404';
+        }
+        return '400';
+    }
+
     function processHttpRequest($method, $uri, $headers, $body) {
 //        ...
+        $statuscode = processStatusCode($method, $uri);
 //        outputHttpResponse(...);
     }
 
-//    $contents = readHttpLikeInput();
-//    $http = parseTcpStringAsHttpRequest($contents);
-//    processHttpRequest($http["method"], $http["uri"], $http["headers"], $http["body"]);
+    $contents = readHttpLikeInput();
+    $http = parseTcpStringAsHttpRequest($contents);
+    processHttpRequest($http["method"], $http["uri"], $http["headers"], $http["body"]);
+
     date_default_timezone_set("GMT");
     function getCurrentTime($currentTime){
         return date('r e',$currentTime);
@@ -109,6 +130,4 @@ $config = include_once ("./config/config.php");
 echo $config['responseCode']['404'];
 
 
-//    $http = parseTcpStringAsHttpRequest($contents);
-//echo(json_encode($http, JSON_PRETTY_PRINT));
 

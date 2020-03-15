@@ -1,19 +1,21 @@
 <?php
 
 return [
-  'responseCode' => [
-    '404' => <<<CODE_404
-HTTP/1.1 404 Not Found
-Date: {$fn(time())}
-Server: Apache/2.2.14 (Win32)
-Content-Length: 9
-Connection: Closed
-Content-Type: text/html; charset=utf-8
+  'responseStatusByCode' => [
+        '200' => 'ok',
+        '400' => 'Bad Request',
+        '404' => 'not found',
+  ],
+  'bodyByCode' => [
+        '200' => '',
+        '400' => 'not found',
+        '404' => 'not found',
+    ],
+    'header' => [
+        'Server:' => 'Server: Apache/2.2.14 (Win32)',
+        'Content-Length:' => function(String $body):String{return "Content-Length: ".strval(strlen($body));},
+        'Connection:' => 'Connection: Closed',
+        'Content-Type: ' =>  'Content-Type: text/html; charset=utf-8'
 
-not found
-CODE_404
-    ,
-      '200' => ""
-
-  ]
+    ]
 ];

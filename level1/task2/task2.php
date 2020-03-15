@@ -64,8 +64,8 @@ function parseTcpStringAsHttpRequest($string) {
     //get array of each string of HTTP request
     $httpRequestTcpLinesArray = explode("\n", $string);
 
-    //get array of fields contained in first string of HTTP request: [method, URI path, HTTP/protocol version]
-    $httpRequestFirstLineParamsArray = explode(" ",$httpRequestTcpLinesArray[0]);
+    //get array of fields contained in first - start string of HTTP request: [method, URI path, HTTP/protocol version]
+    $httpRequestStartLineParamsArray = explode(" ",$httpRequestTcpLinesArray[0]);
 
     //get body
     $body = '';
@@ -83,8 +83,8 @@ function parseTcpStringAsHttpRequest($string) {
 
 
     return array(
-        "method" => $httpRequestFirstLineParamsArray[0],
-        "uri" => $httpRequestFirstLineParamsArray[1],
+        "method" => $httpRequestStartLineParamsArray[0],
+        "uri" => $httpRequestStartLineParamsArray[1],
         "headers" => $headers,
         "body" => $body,
     );
