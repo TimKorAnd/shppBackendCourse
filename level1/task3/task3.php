@@ -92,7 +92,7 @@ function parseTcpStringAsHttpRequest($string) {
     function outputHttpResponse($statuscode, $statusmessage, $headers, $body) {
 //        ...
         global $config;
-       echo $config['protocolVersion']." ".$statuscode." ".$statusmessage."\n".$headers."\n"."\n".$body;
+       echo $config['protocolVersion']." ".$statuscode." ".$statusmessage."\n".$headers."\n".$body;
 }
 
     /**
@@ -143,12 +143,12 @@ function parseTcpStringAsHttpRequest($string) {
         outputHttpResponse($responseStatusCode, $responseStatusMessage, $responseHeaders, $responseBody);
     }
 
-//    $contents = readHttpLikeInput();
-    $contents = <<<REQ
+   $contents = readHttpLikeInput();
+/*    $contents = <<<REQ
 GET /sum?nums=1,2,13 HTTP/1.1
 Host: student.shpp.me
 
-REQ;
+REQ;*/
 
     $http = parseTcpStringAsHttpRequest($contents);
     processHttpRequest($http["method"], $http["uri"], $http["headers"], $http["body"]);

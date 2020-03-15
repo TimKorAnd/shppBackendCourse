@@ -2,9 +2,9 @@
 
 return [
   'responseStatusMessageByCode' => [
-        '200' => 'ok',
+        '200' => 'OK',
         '400' => 'Bad Request',
-        '404' => 'not found',
+        '404' => 'Not Found',
   ],
   'bodyByCode' => [
         '200' => '',
