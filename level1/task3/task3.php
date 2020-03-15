@@ -1,4 +1,6 @@
 <?php
+    date_default_timezone_set("GMT");
+    $config = include_once ("./config/config.php");
 
 // не обращайте на эту функцию внимания
 // она нужна для того чтобы правильно считать входные данные
@@ -89,7 +91,8 @@ function parseTcpStringAsHttpRequest($string) {
 
     function outputHttpResponse($statuscode, $statusmessage, $headers, $body) {
 //        ...
-//        echo ...;
+        global $config;
+       echo $config['protocolVersion']." ".$statuscode." ".$statusmessage."\n".$headers."\n"."\n".$body;
 }
 
     /**
@@ -97,7 +100,7 @@ function parseTcpStringAsHttpRequest($string) {
      * @param String $uri
      * @return String status code
      */
-    function processStatusCode(String $method, String $uri): String{
+    function getResponseStatusCode(String $method, String $uri): String{
 
         if (!preg_match('/^GET$/', $method) ) {
             return '400';
@@ -111,23 +114,47 @@ function parseTcpStringAsHttpRequest($string) {
         return '400';
     }
 
-    function processHttpRequest($method, $uri, $headers, $body) {
-//        ...
-        $statuscode = processStatusCode($method, $uri);
-//        outputHttpResponse(...);
+    function getResponseBody(String $statuscode, String $uri): String {
+        global $config;
+        if ($statuscode !== '200'){
+            return $config['bodyByCode'][$statuscode];
+        }
+        preg_match('/^\/sum\?nums=((?:\d+,)*\d+$)/', $uri, $matchesDigits);
+        return strVal(array_sum(explode(",", $matchesDigits[1])));
     }
 
-    $contents = readHttpLikeInput();
+    function processHttpRequest(String $method, String $uri, array $headers, String $body):void {
+//        ...
+        global $config;
+        $responseStatusCode = getResponseStatusCode($method, $uri);
+        $responseStatusMessage = $config['responseStatusMessageByCode'][$responseStatusCode];
+        $responseBody = getResponseBody($responseStatusCode, $uri);
+        $responseHeaders = '';
+        foreach ($config['headers'] as $k => $v){
+            if ($k === 'Date:') {
+                $responseHeaders.=$v();
+            } elseif ($k === 'Content-Length:') {
+                $responseHeaders.=$v($responseBody);
+            } else {
+                $responseHeaders.=$v;
+            }
+            $responseHeaders.="\n";
+        }
+        outputHttpResponse($responseStatusCode, $responseStatusMessage, $responseHeaders, $responseBody);
+    }
+
+//    $contents = readHttpLikeInput();
+    $contents = <<<REQ
+GET /sum?nums=1,2,13 HTTP/1.1
+Host: student.shpp.me
+
+REQ;
+
     $http = parseTcpStringAsHttpRequest($contents);
     processHttpRequest($http["method"], $http["uri"], $http["headers"], $http["body"]);
 
-    date_default_timezone_set("GMT");
-    function getCurrentTime($currentTime){
-        return date('r e',$currentTime);
-    }
-    $fn = 'getCurrentTime'; //TODO how else may i call this function from heredocs? Without variable creation
-$config = include_once ("./config/config.php");
-echo $config['responseCode']['404'];
+
+//echo $config['header']['Date:'](time());
 
 
 
