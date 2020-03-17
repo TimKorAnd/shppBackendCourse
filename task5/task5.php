@@ -125,22 +125,18 @@ function parseTcpStringAsHttpRequest($string) {
      */
     function    getResponseStatusCode(String $method, String $uri, array $headers): String{
         global $config;
-        $hostHeaderValue = getHeaderValue($headers, $config['requiredHeaderName']);
+        /*$hostHeaderValue = getHeaderValue($headers, $config['requiredHeaderName']);
 
         $fileFullPath = getPathFromResolveHosts($hostHeaderValue, $config['resolveHostValues']);
         if ($fileFullPath === '' || (!file_exists(".".$fileFullPath.$uri))){
             return '404';
-        }
+        }*/
 
 
         if (!preg_match('/^POST$/', $method) ) {
             return '400';
         }
-        if (preg_match('@^/api/checkLoginAndPassword$@', $uri)) {
-            return '200';
-        } else {
-            return '404';
-        }
+       return '200';
 
     }
 
@@ -155,24 +151,21 @@ function parseTcpStringAsHttpRequest($string) {
         return !!preg_match("/^".$searchingStr."$/m", $fileContent);
     }
 
-    /** Get response body
-     * @param String $statuscode
-     * @param String $body
-     * @return String like 'login:password' or empty string otherwise
-     */
-    function getResponseBody(String $statuscode, String $body): String {
+/** Get response body
+ * @param array $headers
+ * @param String $uri
+ * @param String $body
+ * @return String like 'login:password' or empty string otherwise
+ */
+    function getResponseBody(array $headers, String $uri, String $body): String {
         global $config;
-        if ($statuscode !== '200'){
-            return $config['bodyByCode'][$statuscode];
+        $hostHeaderValue = getHeaderValue($headers, $config['requiredHeaderName']);
+
+        $fileFullPath = getPathFromResolveHosts($hostHeaderValue, $config['resolveHostValues']);
+        if ((file_exists(".".$fileFullPath.$uri))){
+            return file_get_contents(".".$fileFullPath.$uri);
         }
-        if(preg_match('/^login=(?<login>[^&]+)&password=(?<password>[^&]+)$/',
-          $body, $matches)){
-            if (isUserDataFoundInFile($matches[1].":".$matches[2])){
-                return $config['userFoundHtml'];
-            }
-            //return $config['userNotFoundHtml']; //TODO what should return in this case? Case is below
-        }
-        return $config['userNotFoundHtml']; //TODO what should return in this case? Which status code?
+        return ''; //TODO if file is empty it's not correct. What should return when file not exist.
     }
 
     /** Process request & pass response strings into outputHttpResponse(...) function for output
@@ -184,9 +177,15 @@ function parseTcpStringAsHttpRequest($string) {
     function processHttpRequest(String $method, String $uri, array $headers, String $body):void {
 //        ...
         global $config;
-        $responseStatusCode = getResponseStatusCode($method, $uri, $headers);
+        $responseBody = getResponseBody($headers, $uri, $body);
+        if (!$responseBody){
+            $responseStatusCode = '404';
+        } else {
+            $responseStatusCode = getResponseStatusCode($method, $uri, $headers);
+        }
+
         $responseStatusMessage = $config['responseStatusMessageByCode'][$responseStatusCode];
-        $responseBody = getResponseBody($responseStatusCode, $body);
+
         $responseHeaders = '';
 
         //TODO what headers required?
@@ -204,7 +203,7 @@ function parseTcpStringAsHttpRequest($string) {
     }
 
    //$contents = readHttpLikeInput();
-    $contents = $config['testRequest5'];
+    $contents = $config['testRequest5Another'];
 
     $http = parseTcpStringAsHttpRequest($contents);
     processHttpRequest($http["method"], $http["uri"], $http["headers"], $http["body"]);

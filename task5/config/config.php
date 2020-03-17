@@ -55,7 +55,7 @@ login=student&password=12345
 REQ
     ,
     'testRequest5Another' => <<<REQ
-POST /another/hey/file.txt HTTP/1.1
+POST /hey/file.txt HTTP/1.1
 Host: another.shpp.me
 Accept: */*
 Content-Type: application/x-www-form-urlencoded
