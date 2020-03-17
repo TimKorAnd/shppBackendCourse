@@ -106,17 +106,18 @@ function parseTcpStringAsHttpRequest($string) {
             return '500';
         }
         //TODO required search with case-insensitive feature in headers search
-        if (!array_search(['Content-Type','application/x-www-form-urlencoded'], $headers)){
+       /* if (!array_search(['Content-Type','application/x-www-form-urlencoded'], $headers)){
+            return '400';
+        }*/
+        if (!preg_match('/^GET$/', $method) ) {
             return '400';
         }
-        if (!preg_match('/^POST$/', $method) ) {
-            return '400';
-        }
-        if (preg_match('@^/api/checkLoginAndPassword$@', $uri)) {
-            return '200';
-        } else {
-            return '404';
-        }
+//        if (preg_match('@^/api/checkLoginAndPassword$@', $uri)) {
+//            return '200';
+//        } else {
+//            return '404';
+//        }
+        return '200';
 
     }
 
@@ -141,9 +142,9 @@ function parseTcpStringAsHttpRequest($string) {
         if ($statuscode !== '200'){
             return $config['bodyByCode'][$statuscode];
         }
-        if(preg_match('/^login=(?<login>[^&]+)&password=(?<password>[^&]+)$/',
+        if(preg_match('/^\/\?login=(?<login>[^&]+)&password=(?<password>.*)$/',
           $body, $matches)){
-            if (isUserDataFoundInFile($matches[1].":".$matches[2])){
+            if (isUserDataFoundInFile($matches['login'].":".$matches['password'])){
                 return $config['userFoundHtml'];
             }
             //return $config['userNotFoundHtml']; //TODO what should return in this case? Case is below
@@ -162,7 +163,7 @@ function parseTcpStringAsHttpRequest($string) {
         global $config;
         $responseStatusCode = getResponseStatusCode($method, $uri, $headers);
         $responseStatusMessage = $config['responseStatusMessageByCode'][$responseStatusCode];
-        $responseBody = getResponseBody($responseStatusCode, $body);
+        $responseBody = getResponseBody($responseStatusCode, $uri);
         $responseHeaders = '';
 
         //TODO what headers required?
@@ -179,10 +180,11 @@ function parseTcpStringAsHttpRequest($string) {
         outputHttpResponse($responseStatusCode, $responseStatusMessage, $responseHeaders, $responseBody);
     }
 
-   //$contents = readHttpLikeInput();
-    $contents = $config['testRequest4'];
+   $contents = readHttpLikeInput();
+    //$contents = $config['testRequest4'];
 
     $http = parseTcpStringAsHttpRequest($contents);
+    //echo(json_encode($http, JSON_PRETTY_PRINT));
     processHttpRequest($http["method"], $http["uri"], $http["headers"], $http["body"]);
 
 
