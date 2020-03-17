@@ -95,6 +95,29 @@ function parseTcpStringAsHttpRequest($string) {
        echo $config['protocolVersion']." ".$statuscode." ".$statusmessage."\n".$headers."\n".$body;
 }
 
+    /**
+     * @param array $headers
+     * @param String $headerName
+     * @return String
+     */
+    function getHeaderValue(array $headers, String $headerName): String{
+        foreach($headers as $header){
+            if(preg_match("/^".$headerName."$/i", $header[0])){
+                return $header[1];
+            }
+        }
+        return '';
+    }
+
+    function getPathFromResolveHosts($hostHeaderValue, $resolveHostValues){
+        foreach($resolveHostValues as $resolveHostValue => $path){
+            if (preg_match("/^".$resolveHostValue.".*/i", $hostHeaderValue)){
+                return($path);
+            }
+        }
+        return '';
+    }
+
     /** get response status code in dependency of request parameters
      * @param String $method
      * @param String $uri
@@ -102,13 +125,14 @@ function parseTcpStringAsHttpRequest($string) {
      */
     function    getResponseStatusCode(String $method, String $uri, array $headers): String{
         global $config;
-        if (!file_exists($config['fileNameUserStorage'])){
-            return '500';
+        $hostHeaderValue = getHeaderValue($headers, $config['requiredHeaderName']);
+
+        $fileFullPath = getPathFromResolveHosts($hostHeaderValue, $config['resolveHostValues']);
+        if ($fileFullPath === '' || (!file_exists(".".$fileFullPath.$uri))){
+            return '404';
         }
-        //TODO required search with case-insensitive feature in headers search
-        if (!array_search(['Content-Type','application/x-www-form-urlencoded'], $headers)){
-            return '400';
-        }
+
+
         if (!preg_match('/^POST$/', $method) ) {
             return '400';
         }
@@ -180,7 +204,7 @@ function parseTcpStringAsHttpRequest($string) {
     }
 
    //$contents = readHttpLikeInput();
-    $contents = $config['testRequest4'];
+    $contents = $config['testRequest5'];
 
     $http = parseTcpStringAsHttpRequest($contents);
     processHttpRequest($http["method"], $http["uri"], $http["headers"], $http["body"]);
