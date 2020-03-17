@@ -5,11 +5,13 @@ return [
         '200' => 'OK',
         '400' => 'Bad Request',
         '404' => 'Not Found',
+        '500' => 'Internal Server Error',
   ],
   'bodyByCode' => [
         '200' => '',
         '400' => 'not found',
         '404' => 'not found',
+        '500' => 'not found',
     ],
     'headers' => [
       'Date:' => function(){
@@ -20,5 +22,8 @@ return [
         'Connection:' => 'Connection: Closed',
         'Content-Type: ' =>  'Content-Type: text/html; charset=utf-8'
     ],
-    'protocolVersion' => 'HTTP/1.1'
+    'protocolVersion' => 'HTTP/1.1',
+    'userFoundHtml' => '<h1 style="color:green">FOUND</h1>',
+    'userNotFoundHtml' => '<h1 style="color:red">NOT FOUND</h1>',
+    'fileNameUserStorage' => './passwords.txt'
 ];

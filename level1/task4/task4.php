@@ -95,20 +95,24 @@ function parseTcpStringAsHttpRequest($string) {
        echo $config['protocolVersion']." ".$statuscode." ".$statusmessage."\n".$headers."\n".$body;
 }
 
-    /**
+    /** get response status code in dependency of request parameters
      * @param String $method
      * @param String $uri
      * @return String status code
      */
     function    getResponseStatusCode(String $method, String $uri, array $headers): String{
-        //TODO case sensative required in all headers search
+        global $config;
+        if (!file_exists($config['fileNameUserStorage'])){
+            return '500';
+        }
+        //TODO required search with case sensitive feature in headers search
         if (!array_search(['Content-Type','application/x-www-form-urlencoded'], $headers)){
             return '400';
         }
         if (!preg_match('/^POST$/', $method) ) {
             return '400';
         }
-        if (preg_match('@^\/api\/checkLoginAndPassword$@', $uri)) {
+        if (preg_match('@^/api/checkLoginAndPassword$@', $uri)) {
             return '200';
         } else {
             return '404';
@@ -116,15 +120,43 @@ function parseTcpStringAsHttpRequest($string) {
 
     }
 
+
+    /**
+     * @param Sring $searchingStr
+     * @return false|int
+     */
+    function isUserDataFoundInFile(String $searchingStr){
+        global $config; //TODO what another way use global variable in many functions
+        $fileContent = file_get_contents($config['fileNameUserStorage']);
+        return preg_match("/^".$searchingStr."$/m", $fileContent);
+    }
+
+    /** Get response body
+     * @param String $statuscode
+     * @param String $body
+     * @return String like 'login:password' or empty string otherwise
+     */
     function getResponseBody(String $statuscode, String $body): String {
         global $config;
         if ($statuscode !== '200'){
             return $config['bodyByCode'][$statuscode];
         }
-        preg_match('/^login=(?<login>[^&]+)&password=(?<password>[^&]+)$/', $body, $matches);
-        return $matches[1]." ".$matches[2];
+        if(preg_match('/^login=(?<login>[^&]+)&password=(?<password>[^&]+)$/',
+          $body, $matches)){
+            if (isUserDataFoundInFile($matches[1].":".$matches[2])){
+                return $config['userFoundHtml'];
+            }
+            //return $config['userNotFoundHtml']; //TODO what should return in this case? Case is below
+        }
+        return $config['userNotFoundHtml']; //TODO what should return in this case? Which status code?
     }
 
+    /** Process request & pass response strings into outputHttpResponse(...) function for output
+     * @param String $method
+     * @param String $uri
+     * @param array $headers
+     * @param String $body
+     */
     function processHttpRequest(String $method, String $uri, array $headers, String $body):void {
 //        ...
         global $config;
