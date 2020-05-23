@@ -60,7 +60,7 @@ function isBodyPresent(array $httpRequestTcpLinesArray):bool
  * @param $string
  * @return array
  */
-function parseTcpStringAsHttpRequest($string) {
+function parseTcpStringAsHttpRequest(String $string) {
     //get array of each string of HTTP request
     $httpRequestTcpLinesArray = explode("\n", $string);
 
@@ -69,8 +69,8 @@ function parseTcpStringAsHttpRequest($string) {
 
     //get body
     $body = '';
-    $isBodyPresent = isBodyPresent($httpRequestTcpLinesArray);
-    if ($isBodyPresent){
+
+    if ($isBodyPresent = isBodyPresent($httpRequestTcpLinesArray)){
         $body = end($httpRequestTcpLinesArray);
     }
 
@@ -89,11 +89,6 @@ function parseTcpStringAsHttpRequest($string) {
         "body" => $body,
     );
 }
-
-/**
- * @param array $httpRequestTcpStringsArray
- * @return bool
- */
 
 
 $http = parseTcpStringAsHttpRequest($contents);
